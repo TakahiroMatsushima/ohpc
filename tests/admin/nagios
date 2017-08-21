@@ -1,0 +1,26 @@
+#!../common/bats/bin/bats
+# -*-sh-*-
+
+load ../common/test_helper_functions || exit 1
+source ../common/functions || exit 1
+
+if [ -s ../TEST_ENV ];then
+    source ../TEST_ENV
+fi
+
+check_rms
+rm=$RESOURCE_MANAGER
+
+@test "[nagios] check for RPM" {
+    run check_if_rpm_installed "nagios${DELIM}"
+    assert_success
+}
+
+@test "[nagios] test check_http" {
+    if [ $use_proxy -eq 0];then
+	run /usr/lib64/nagios/plugins/check_http -I ${proxy_host} -p ${proxy_port} -u http://openhpc.community
+    else	
+	run /usr/lib64/nagios/plugins/check_http  -H openhpc.community
+    fi
+    assert_success
+}
